@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 #terminar el modelo
 class Libro(models.Model):
@@ -65,3 +66,12 @@ class Comment(models.Model):
         
     def __str__(self):
         return self.text
+    
+class Carrito(models.Model):
+    
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Libro, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(default=1)
+    
+    def __str__(self):
+        return f'{self.usuario} - {self.producto}'

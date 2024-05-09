@@ -1,0 +1,88 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+
+
+<div class="row">
+    <div class="col-md-3">
+        <!-- Sección de filtros de búsqueda -->
+        <h5>Filtros de Búsqueda</h5>
+        <ul class="list-unstyled ps-0">
+            <li class="mb-3">
+                <button class="btn btn-toggle d-inline-flex align-items-center rounded border" data-bs-toggle="collapse"
+                    data-bs-target="#home-collapse" aria-expanded="false">
+                    Precio
+                    <i class="bi bi-plus ms-auto">+</i> <!-- Icono de "+" cuando está cerrada -->
+                    <i class="bi bi-dash ms-auto d-none">-</i>
+                    <!-- Icono de "-" cuando está abierta, inicialmente oculto -->
+                </button>
+                <div class="collapse" id="home-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pt-2 pb-2 small">
+                        <li><a href="{% url 'show_filter' Genero=genero min=0 max=10 %}"
+                                class="link-body-emphasis d-inline-flex text-decoration-none rounded p-2">$0 - $10.00
+                                (cantidad) </a></li>
+                        <li><a href="{% url 'show_filter' Genero=genero min=10 max=20 %}"
+                                class="link-body-emphasis d-inline-flex text-decoration-none rounded p-2">$10.00 -
+                                $20.00 (cantidad) </a></li>
+                        <li><a href="{% url 'show_filter' Genero=genero min=20 max=30 %}"
+                                class="link-body-emphasis d-inline-flex text-decoration-none rounded p-2">$20.00 -
+                                $30.00 (cantidad) </a></li>
+                        <li><a href="{% url 'show_filter' Genero=genero min=30 max=40 %}"
+                                class="link-body-emphasis d-inline-flex text-decoration-none rounded p-2">$30.00 -
+                                $40.00 (cantidad) </a></li>
+                        <li><a href="{% url 'show_filter' Genero=genero min=40 max=50 %}"
+                                class="link-body-emphasis d-inline-flex text-decoration-none rounded p-2">$50.00 -
+                                $60.00 (cantidad) </a></li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+
+
+
+    </div>
+    <div class="col-md-">
+        <!-- Sección de libros -->
+        <h1 class="mt-5">{{ genero }}</h1>
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            {% for product in products %}
+            <div class="col-md-3">
+                <div class="card shadow-lg mb-4 bg-white rounded h-100">
+                    <a href={% url 'show_product' id=product.id %} class='text-decoration-none '>
+                        <img src="{{ product.image.url }}" class="card-img-top img-fluid" alt="{{ product.name }}"
+                            style="height: 300px; object-fit: contain;">
+                    </a>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.price }} USD</p>
+                        <form action="{% url 'add_carrito' id=product.id %}" class="post-form mt-auto">
+                            <button class="btn btn-darkred mt-auto" type='submit'>Agregar al Carrito</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+                {% if products.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+                {% for i in products.paginator.page_range %}
+                <li class="page-item {% if products.number == i %}active{% endif %}">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% endfor %}
+                {% if products.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ products.next_page_number }}">Next</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}
