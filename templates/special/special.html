@@ -1,11 +1,12 @@
 {% extends 'base/base.html' %}
 
+{% load custom_filters %}
+
+
 {% block content %}
 
-
-
 <div class="row">
-    <div class="col-md-3">
+    {% comment %} <div class="col-md-3">
         <!-- Sección de filtros de búsqueda -->
         <h5>Filtros de Búsqueda</h5>
         <ul class="list-unstyled ps-0">
@@ -38,13 +39,11 @@
                 </div>
             </li>
         </ul>
+    </div> {% endcomment %}
 
-
-
-    </div>
     <div class="col-md-">
         <!-- Sección de libros -->
-        <h1 class="mt-5">{{ genero }}</h1>
+        <h1 class="mt-5">Los mas vendidos</h1>
         <div class="row row-cols-1 row-cols-md-4 g-4">
             {% for product in products %}
             <div class="col-md-3">
@@ -88,4 +87,6 @@
         </nav>
     </div>
 </div>
+
+
 {% endblock %}

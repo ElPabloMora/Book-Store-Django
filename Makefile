@@ -9,3 +9,6 @@ makemigrations:
 
 createsuperuser:
 	python manage.py createsuperuser --settings=settings.local
+
+
+	

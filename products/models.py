@@ -19,6 +19,12 @@ class Libro(models.Model):
     
     price = models.DecimalField(decimal_places=2, max_digits=10, null=True)
     
+    special_price = models.DecimalField(decimal_places=2, max_digits=10, null=True)
+    
+    quantity = models.PositiveIntegerField(default=0)
+    
+    count_sale = models.PositiveIntegerField(default=0)
+    
     created_date = models.DateTimeField(
         default=timezone.now)
     published_date = models.DateTimeField(
@@ -27,6 +33,8 @@ class Libro(models.Model):
     def __str__(self):
         return f'{self.name} | {self.author}'
     
+    
+   
     
     
 class Author(models.Model):
@@ -70,7 +78,7 @@ class Comment(models.Model):
 class Carrito(models.Model):
     
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
-    producto = models.ForeignKey(Libro, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Libro, on_delete=models.CASCADE, related_name="carrito")
     cantidad = models.PositiveIntegerField(default=1)
     
     def __str__(self):

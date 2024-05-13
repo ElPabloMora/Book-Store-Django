@@ -7,13 +7,61 @@ def index(request):
     #logica
 
     #Aqui llamamos a todos los productos
-    products = Libro.objects.all()
-    authors = Author.objects.all()
+    products = Libro.objects.all().order_by('-id')[:8]
+    authors = Author.objects.all().order_by('-id')[:8]
     
+
+    
+        
     return render( request,'products/list_of_products.html', {'products': products, 'authors': authors})
 
 
+def special_most_sale(request):
+    
+    products = Libro.objects.order_by('-count_sale')[:24]
+    
+    paginator_products = Paginator(products,12)
+    
+    page_number = request.GET.get("page")
+    
+    page_obj_prod = paginator_products.get_page(page_number)
+    
+    return render(request, 'special/special.html', {'products' : page_obj_prod} )
+
+
+def special_author_page(request, author):
+    author = get_object_or_404(Author, author=author)
+    
+    product = Libro.objects.filter(author=author)
+    
+    
+    paginator_products = Paginator(product,12)
+    
+    page_number =request.GET.get("page")
+    
+    page_obj_prod = paginator_products.get_page(page_number)
+    
+    return render(request, 'special/author_page.html', {'products': page_obj_prod})
+
+
+def special_price(request):
+    
+    #Con este __isnull=False le estamos diciendo al filtro que me traiga los datos que en el apartado de special_price no sea nulo.
+    product = Libro.objects.filter(special_price__isnull=False)
+    
+    paginator_products = Paginator(product, 12)
+    
+    page_number = request.GET.get("page")
+    
+    page_obj_prod = paginator_products.get_page(page_number)
+    
+    return render(request, 'special/special_price.html', {'products':page_obj_prod})
+    
+    
+    
+
 def show_genero(request, Genero):
+
     
     products = Libro.objects.filter(genero=Genero)
     #Concretamente tuve que utilizar author__in para poder filtrar los autores de los libros filtrados por genero
@@ -36,6 +84,31 @@ def show_genero(request, Genero):
 
 
 
+    
+
+
+def pay_shoppingCard(request):
+    
+    carritos = Carrito.objects.filter(usuario=request.user)
+ 
+    
+    
+    for carrito in carritos:
+        product = carrito.producto
+        
+        cantidadCarrito = carrito.cantidad
+        cantidadProducto = product.quantity
+        
+        if cantidadProducto > cantidadCarrito:
+            product.quantity = cantidadProducto - cantidadCarrito
+            product.count_sale += carrito.cantidad
+            carrito.delete()
+            product.save()
+            return redirect('ver_carrito')
+        else:
+             return redirect('ver_carrito')
+    
+    
 def show_filter (request, Genero, min, max):
     
     products = Libro.objects.filter(genero=Genero, price__gte=min, price__lte=max)
@@ -98,6 +171,7 @@ def ver_carrito(request):
     return render(request, 'shopping/carritoC.html', {"carrito":carrito, "total":total})
     
 
+
 def actualizar_cantidad(request, id):
     
     libro = get_object_or_404(Carrito, id=id)
@@ -126,8 +200,7 @@ def delete_comment(request, id_comment, id_libro):
     return redirect('show_product',id_libro)
     
 
-def edit_comment(request, id):
-    pass
+
 
 def add_new_comment(request, id):
     
