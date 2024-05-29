@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
-from .views import index, show_author, show_product, add_new_comment, delete_comment,ver_carrito, special_author_page, special_price
-from .views import add_carrito, actualizar_cantidad, eliminar_carrito, show_genero, show_filter, pay_shoppingCard,special_most_sale
+from .views import index, show_author, show_product, add_new_comment, delete_comment,ver_carrito, special_author_page, special_price, product_views
+from .views import add_carrito, actualizar_cantidad, eliminar_carrito, show_genero, show_filter, pay_shoppingCard,special_most_sale, busqueda
 
 urlpatterns = [
     path('', index, name = 'index'),
@@ -18,6 +18,8 @@ urlpatterns = [
     path('Checkout/pay_shopping', pay_shoppingCard, name='pay_shoppingCard'),
     path('special_most_sale/', special_most_sale, name='special_most_sale'),
     path('special_author_page/<str:author>', special_author_page, name='special_author_page'),
-    path('special_price', special_price, name='special_price')
+    path('special_price', special_price, name='special_price'),
+    path('busqueda', busqueda, name='busqueda'),
+    path('products/<str:Tipo>', product_views, name='product_views')
 ]
 

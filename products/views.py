@@ -3,17 +3,15 @@ from .models import Libro, Author, Comment, Carrito
 from .forms import CommentsForm
 from django.core.paginator import Paginator
 
+
 def index(request):
     #logica
-
-    #Aqui llamamos a todos los productos
-    products = Libro.objects.all().order_by('-id')[:8]
-    authors = Author.objects.all().order_by('-id')[:8]
+    #Aqui jugamos un poco con el filtro y con el order_by para que las consultas me traigan del modelo Libro todos las que son type Libro y ordenadas
     
+    products = Libro.objects.filter(type='Libro').order_by('-id')[:8]
 
-    
-        
-    return render( request,'products/list_of_products.html', {'products': products, 'authors': authors})
+      
+    return render( request,'products/list_of_products.html', {'products': products})
 
 
 def special_most_sale(request):
@@ -27,6 +25,19 @@ def special_most_sale(request):
     page_obj_prod = paginator_products.get_page(page_number)
     
     return render(request, 'special/special.html', {'products' : page_obj_prod} )
+
+
+def product_views(request, Tipo):
+    
+    products = Libro.objects.filter(genero=Tipo)
+    
+    paginator_products = Paginator(products,12)
+    
+    page_number = request.GET.get("page")
+    
+    page_obj_prod = paginator_products.get_page(page_number)
+    
+    return render(request, 'productStore/product.html', {'products' : page_obj_prod, 'tipo':Tipo})
 
 
 def special_author_page(request, author):
@@ -56,9 +67,7 @@ def special_price(request):
     page_obj_prod = paginator_products.get_page(page_number)
     
     return render(request, 'special/special_price.html', {'products':page_obj_prod})
-    
-    
-    
+
 
 def show_genero(request, Genero):
 
@@ -82,32 +91,6 @@ def show_genero(request, Genero):
 
     return render( request,'generos/genero.html', {'genero':Genero,'products': page_obj_prod, 'authors': page_obj_author})
 
-
-
-    
-
-
-def pay_shoppingCard(request):
-    
-    carritos = Carrito.objects.filter(usuario=request.user)
- 
-    
-    
-    for carrito in carritos:
-        product = carrito.producto
-        
-        cantidadCarrito = carrito.cantidad
-        cantidadProducto = product.quantity
-        
-        if cantidadProducto > cantidadCarrito:
-            product.quantity = cantidadProducto - cantidadCarrito
-            product.count_sale += carrito.cantidad
-            carrito.delete()
-            product.save()
-            return redirect('ver_carrito')
-        else:
-             return redirect('ver_carrito')
-    
     
 def show_filter (request, Genero, min, max):
     
@@ -154,22 +137,54 @@ def show_product(request, id):
                    'form':form})
     
     
+#Shopping Cart 
 
 def add_carrito(request, id):
-    libro = Libro.objects.get(id=id)
-    print(request.user)
+    libro = Libro.objects.get(id=id) 
     carrito, creado = Carrito.objects.get_or_create(usuario=request.user, producto=libro)
     if not creado:
         carrito.cantidad += 1
         carrito.save()
-    return redirect('index')
+    return redirect('ver_carrito')
     
     
 def ver_carrito(request):
+    #Aqui instanciamos un objeto de Carrito donde traemos todos los objetos con el filtro de que sea el usuario logeado 
     carrito = Carrito.objects.filter(usuario=request.user)
-    total = sum(item.producto.price  * item.cantidad for item in carrito)
+    #Creamos esta variable para iniciar el bucle
+    total = 0
+    for item in carrito:
+        if item.producto.special_price:
+            suma = item.producto.special_price  * item.cantidad
+        else:
+            suma = item.producto.price  * item.cantidad
+        total += suma
+
+    
     return render(request, 'shopping/carritoC.html', {"carrito":carrito, "total":total})
     
+    
+def pay_shoppingCard(request):
+    
+    carritos = Carrito.objects.filter(usuario=request.user)
+ 
+    
+    
+    for carrito in carritos:
+        product = carrito.producto
+        
+        cantidadCarrito = carrito.cantidad
+        cantidadProducto = product.quantity
+        
+        if cantidadProducto >= cantidadCarrito:
+            product.quantity = cantidadProducto - cantidadCarrito
+            product.count_sale += carrito.cantidad
+            carrito.delete()
+            product.save()
+    
+        else:
+             return redirect('ver_carrito')
+    return redirect('ver_carrito')
 
 
 def actualizar_cantidad(request, id):
@@ -184,6 +199,7 @@ def actualizar_cantidad(request, id):
         
     return redirect('ver_carrito')
 
+
 def eliminar_carrito(request, id):
     
     libro = get_object_or_404(Carrito, id=id)
@@ -193,15 +209,11 @@ def eliminar_carrito(request, id):
     return redirect('ver_carrito')
 
     
-def delete_comment(request, id_comment, id_libro):
     
-    comment = Comment.objects.get(id=id_comment)
-    comment.delete()
-    return redirect('show_product',id_libro)
     
+    #Comentarios
 
-
-
+#Crear comentarios
 def add_new_comment(request, id):
     
     if request.method == 'POST':
@@ -219,3 +231,41 @@ def add_new_comment(request, id):
         return redirect('show_product',id)
     
     return redirect('show_product',id)
+
+
+
+
+
+#Eliminar comentarios
+def delete_comment(request, id_comment, id_libro):
+    
+    comment = Comment.objects.get(id=id_comment)
+    comment.delete()
+    return redirect('show_product',id_libro)
+    
+
+
+#Busqueda
+def busqueda(request):
+    
+    #traemos todos los datos
+    queryset = Libro.objects.all()
+    
+    #traemos el elemento input con el name busqueda
+    query = request.GET.get('busqueda')
+    
+    #comprobamos si existe
+    if query:
+        #Aqui basicamente usanmos el filter para realizar un filtro el __icontains nos sirve para ver si existe dentro del name el query.
+        #Hacemos dos filtro con el | para separarlos. Va a buscar en name y description
+        queryset =queryset.filter(description__icontains=query) | queryset.filter(name__icontains=query)
+        
+    paginator_products = Paginator(queryset,12)
+    
+    page_number = request.GET.get("page")
+    
+    page_obj_prod = paginator_products.get_page(page_number)
+    
+        
+    return render(request, 'busqueda/filter_search.html', {'query': query, 'queryset':page_obj_prod})
+    

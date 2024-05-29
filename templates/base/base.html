@@ -1,81 +1,100 @@
 {% load static %}
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
   <title>Libreria San Marcos</title>
   <meta name="description" content="Mi primera tienda de barrio virtual">
-  <meta name="keywords" content="ecomerce,market">
-  <link rel="icon" type="image/x-icon" href="{% static "images/libreria.png" %}">
-  {# Bootstrap - https://getbootstrap.com/#}
+  <meta name="keywords" content="ecomerce, market">
+  <link rel="icon" type="image/x-icon" href="{% static 'images/libreria.png' %}">
+  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-  {# Fonts #}
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  {# Styles #}
+  <!-- Estilos personalizados -->
   <link rel="stylesheet" href="{% static 'style.css' %}">
-
+  <style>
+    /* Estilos adicionales personalizados aquí */
+  </style>
 </head>
 
 <body>
 
-  <header class=" navbar-dark btn-darkred">
+  <header class="navbar-dark btn-darkred">
     <div class="container">
       <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 
-        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0 ">
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <li class="nav-item">
             <a class="nav-link active navbar-brand" aria-current="page" href="{% url 'index' %}">
-              <img src="{% static "images\logox.png" %}" alt="" width="300" height="82">
+              <img src="{% static 'images/logox.png' %}" alt="Logo" width="300" height="82">
             </a>
           </li>
+        </ul>
+
+        <form class="d-flex mt-5" action="{% url 'busqueda' %}">
+          <input class="input_search" name="busqueda" type="text" placeholder="Buscar..." aria-label="Buscar"
+            size="60">
+          <button class="btn" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
+
+      </div>
+
+      <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+
+        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <li class="nav-item">
-            <a class="nav-link active navbar-brand mt-5 " aria-current="page" href="{% url 'index' %}">Home</a>
+            <a class="nav-link active navbar-brand mt-5" aria-current="page" href="{% url 'index' %}">Home</a>
           </li>
-          <li class="nav-item dropdown ">
-            <a class="nav-link dropdown-toggle navbar-brand mt-5" href="#" id="navbarDropdown" role="button"
-              data-bs-toggle="dropdown" aria-expanded="false">Generos</a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle navbar-brand mt-5" href="#" id="navbarDropdownGeneros" role="button"
+              data-bs-toggle="dropdown" aria-expanded="false">Géneros</a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdownGeneros">
+              <li><p class="dropdown-header"><strong>Libros</strong></p></li>
               <li><a class="dropdown-item" href="{% url 'show_genero' Genero='Terror' %}">Terror</a></li>
               <li><a class="dropdown-item" href="{% url 'show_genero' Genero='Crimen' %}">Crimen</a></li>
             </ul>
           </li>
+
+          <!-- Más elementos del menú aquí -->
+
         </ul>
 
-
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-          <input type="search" class="form-control" placeholder="Buscar..." aria-label="Search">
-        </form>
-
-
-
-        <div class="text-end d-flex align-items-center">
+        <div class="d-flex justify-content-end align-items-center">
           {% if user.is_authenticated %}
-          <form action="{% url 'logout' %}" method="post">
+          <form action="{% url 'logout' %}" method="post" class="mt-5 me-2">
             {% csrf_token %}
-            <button class="btn btn-outline-light me-2" tabindex="-2" type="submit">Logout</button>
+            <button class="btn btn-outline-light" type="submit">Logout</button>
           </form>
           {% else %}
-          <a href="{% url 'login' %}" class="nav-link link-body-emphasis px-2 py-1 me-2">Login</a>
-          <a href="{% url 'signup' %}" class="nav-link link-body-emphasis px-2 py-1">Sign up</a>
+          <a href="{% url 'login' %}" class="nav-link link-body-emphasis px-2 py-1 mt-5 me-2">Login</a>
+          <a href="{% url 'signup' %}" class="nav-link link-body-emphasis px-2 py-1 mt-5 me-2">Sign up</a>
           {% endif %}
-          <a href="{% url 'ver_carrito' %}" class="" aria-disabled="true"><img src="{% static "images/carrito-de-compras.png" %}" width="30" height="25"></a>
+          <a href="{% url 'ver_carrito' %}" class="mt-5">
+            <img src="{% static 'images/carrito-de-compras.png' %}" width="30" height="25" alt="Carrito de compras">
+          </a>
         </div>
-
 
       </div>
     </div>
   </header>
 
-
   <div class="container">
     {% block content %}
     {% endblock %}
   </div>
-  <div style=" width: 100%; height: 180px"></div>
+
+  <!-- Espacio adicional para la página -->
+  <div style="width: 100%; height: 180px"></div>
 
   <div class="color-grey">
-    <div class="container ">
-      <footer class="py-5 ">
+    <div class="container">
+      <footer class="py-5">
         <div class="row">
           <div class="col-6 col-md-2 mb-3">
             <h5>Libreria San Marcos</h5>
@@ -87,28 +106,20 @@
             </ul>
           </div>
 
+          <!-- Más contenido del footer aquí -->
 
-
-          <div class="col-md-5 offset-md-1 mb-3">
-            <form>
-              <h5>Suscribete a nuestros avisos semanales</h5>
-              <div class="d-flex flex-column flex-sm-row w-100 gap-2">
-                <label for="newsletter1" class="visually-hidden">Email address</label>
-                <input id="newsletter1" type="text" class="form-control" placeholder="Email">
-                <button class="btn btn-primary" type="button">Suscribirse</button>
-              </div>
-            </form>
-          </div>
         </div>
 
         <div class="d-flex flex-column flex-sm-row justify-content-between py-4 my-4 border-top">
-          <p>© 2024 Libreria San Marcos </p>
+          <p>© 2024 Libreria San Marcos</p>
         </div>
       </footer>
     </div>
   </div>
 
+  <!-- Scripts al final del cuerpo para mejorar la carga -->
+  <script src="{% static 'main.js' %}"></script>
+
 </body>
-<script src="{% static 'main.js' %}"></script>
 
 </html>

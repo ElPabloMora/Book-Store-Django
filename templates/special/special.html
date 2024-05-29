@@ -48,7 +48,7 @@
             {% for product in products %}
             <div class="col-md-3">
                 <div class="card shadow-lg mb-4 bg-white rounded h-100">
-                    <a href={% url 'show_product' id=product.id %} class='text-decoration-none '>
+                    <a href={% url 'show_product' id=product.id %} class='text-decoration-none image-container '>
                         <img src="{{ product.image.url }}" class="card-img-top img-fluid" alt="{{ product.name }}"
                             style="height: 300px; object-fit: contain;">
                     </a>
@@ -58,9 +58,15 @@
                         {% if product.special_price != false %}
                             <strong class="text-center">Socio Club: {{ product.special_price }} USD</strong>
                         {% endif %}
+                        {% if product.quantity > 0 %}
                         <form action="{% url 'add_carrito' id=product.id %}" class="post-form mt-auto">
-                            <button class="btn btn-darkred mt-auto" type='submit'>Agregar al Carrito</button>
+                        <button class="btn btn-darkred mt-auto" type='submit'>Agregar al Carrito</button>
                         </form>
+                        {% else %}
+                        <form action="" class="post-form mt-auto">
+                            <button class="btn btn-darkred mt-auto " disabled type='submit'>Agotado</button>
+                        </form>
+                        {% endif %}
                     </div>
                 </div>
             </div>

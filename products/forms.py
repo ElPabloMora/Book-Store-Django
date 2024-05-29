@@ -16,4 +16,5 @@ class CommentsForm(ModelForm):
                 'placeholder':'Deja tu comentario',
                 'id':'formComment'
             })
+            
     }

@@ -28,15 +28,23 @@
                         <tr>
                             <td class="align-middle"><img src="{{ item.producto.image.url }}" class="img-thumbnail" width="100" height="100"></td>
                             <td class="align-middle">{{ item.producto.name|truncatewords:6}}</td>
+                            {% if item.producto.special_price %}
+                            <td class="align-middle">${{ item.producto.special_price }}</td>
+                            {% else %}
                             <td class="align-middle">${{ item.producto.price }}</td>
+                            {% endif %}
                             <td class="align-middle">
                                 <form action="{% url 'actualizar_cantidad' id=item.id %}" method="post" class="d-flex">
                                     {% csrf_token %}
-                                    <input type="number" name="cantidad" min="1" pattern="^[0-9]+" value="{{ item.cantidad }}" class="form-control me-2" style="width: 80px;">
+                                    <input type="number" name="cantidad" min="1" max="{{ item.producto.quantity }}" pattern="^[0-9]+" value="{{ item.cantidad }}" class="form-control me-2" style="width: 80px;">
                                     <button type="submit" class="btn btn-primary">Actualizar</button>
                                 </form>
                             </td>
+                            {% if item.producto.special_price %}
+                            <td class="align-middle">${{ item.producto.special_price|multiply:item.cantidad }}</td>
+                            {% else %}
                             <td class="align-middle">${{ item.producto.price|multiply:item.cantidad }}</td>
+                            {% endif %}
                             <td class="align-middle">
                                 <form action="{% url 'eliminar_carrito' id=item.id %}" method="post">
                                     {% csrf_token %}
@@ -59,9 +67,11 @@
             <div class="card mt-5">
                 <div class="card-body">
                     <h5 class="card-title">Resumen de Pago</h5>
+                    
                     <p class="card-text " style="font-weight: bold;">SubTotal: ${{ total }}</p>
                     <p class="card-text " style="font-weight: bold;">IVA: ${{ total }}</p>
                     <p class="card-text " style="font-weight: bold;">Descuento: ${{ total }}</p>
+                    
                     <p class="" style="font-weight: bold;">Total: ${{ total }}</p>
                     <form action="{% url 'pay_shoppingCard' %}" method="post">
                         {% csrf_token %}
